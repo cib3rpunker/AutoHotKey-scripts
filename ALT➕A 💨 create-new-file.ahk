@@ -10,40 +10,65 @@
 
 ; hotkey is set to control + alt + n
 ; more on hotkeys: http://www.autohotkey.com/docs/Hotkeys.htm
-^!n::
+; ^!n::
 
 ; script will automatically use its current directory as its "working directory"
 ; to get the file to appear in the active directory we have to extract
 ; the full path from the window.
 
-; get full path from open explorer window
-WinGetText, FullPath, A
+; 💙 https://github.com/syon/ahk/blob/master/NewFile/NewFile.ahk
+; 💚 !n = Alt+N
 
-; split up result (returns paths seperated by newlines)
-StringSplit, PathArray, FullPath, `n
+; Only run when Windows Explorer or Desktop is active
+#IfWinActive ahk_class CabinetWClass
+!n::
+#IfWinActive ahk_class ExploreWClass
+!n::
+#IfWinActive ahk_class Progman
+!n::
+#IfWinActive ahk_class WorkerW
+!n::
 
-; get first item
-FullPath = %PathArray1%
+    ; get full path from open explorer window
+    WinGetText, FullPath, A
 
-; clean up result
-FullPath := RegExReplace(FullPath, "(^Address: )", "")
-StringReplace, FullPath, FullPath, `r, , all
+    ; split up result (returns paths seperated by newlines)
+    StringSplit, PathArray, FullPath, `n
 
-; change working directory
-SetWorkingDir, %FullPath%
+    ; Find line with backslash which is the path
+    Loop, %PathArray0%
+    {
+        StringGetPos, pos, PathArray%a_index%, \
+        if (pos > 0) {
+            FullPath:= PathArray%a_index%
+            break
+        }
+    }
 
-; an error occurred with the SetWorkingDir directive
-if ErrorLevel
-	return
+    ; clean up result
+    FullPath := RegExReplace(FullPath, "(^.+?: )", "")
+    StringReplace, FullPath, FullPath, `r, , all
 
-; display input box for file name
-InputBox, UserInput, New File (example: foo.txt), , ,400, 100
+    ; change working directory
+    SetWorkingDir, %FullPath%
 
-; user pressed cancel
-if ErrorLevel
-    return
+    ; an error occurred with the SetWorkingDir directive
+    If ErrorLevel
+        Return
 
-; success! output file with user input
-else
-	FileAppend, ,%UserInput%
-return
+    ; Display input box for filename
+    InputBox, UserInput, New File, , , 400, 100, , , , ,
+
+    ; User pressed cancel
+    If ErrorLevel
+        Return
+
+    ; Create file
+    FileAppend, , %UserInput%
+
+    ; Open the file in the appropriate editor
+    ;Run %UserInput%
+
+    Return
+
+#IfWinActive
