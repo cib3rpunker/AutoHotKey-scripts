@@ -37,7 +37,7 @@
 ; of Windows.
 
 ; @diastremskii: "And I changed the way how script gets full path to make it
-: compatible with Windows 10"
+; compatible with Windows 10"
 ; me: what ??? there is not a single line related to this mention.
 
 ; @diastremskii: and also changed hotkey to Alt+N
@@ -48,16 +48,18 @@
 ; [3]: https://gist.github.com/1965432
 ; [4]: https://github.com/syon/ahk/blob/master/NewFile/NewFile.ahk
 
+; 💛 Alt+N = !SC031::
+; 💛 ALT+A = !a::
+
 ; Only run when Windows Explorer or Desktop is active
-; Alt+N
 #IfWinActive ahk_class CabinetWClass
-!SC031::
+!a::
 #IfWinActive ahk_class ExploreWClass
-!SC031::
+!a::
 #IfWinActive ahk_class Progman
-!SC031::
+!a::
 #IfWinActive ahk_class WorkerW
-!SC031::
+!a::
 
     ; get full path from open explorer window
     WinGetText, FullPath, A
